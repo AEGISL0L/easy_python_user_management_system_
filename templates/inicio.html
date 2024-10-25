@@ -1,0 +1,16 @@
+<!-- Archivo: /home/juav/Documentos/fp/rfid2/templates/inicio.html -->
+
+{% extends "base.html" %}
+
+{% block title %}Inicio{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1 class="mt-5">Bienvenido al Sistema de Control de Inventario</h1>
+    <p>
+        <a href="{{ url_for('login') }}" class="btn btn-primary">Iniciar Sesión</a>
+        <a href="{{ url_for('registro') }}" class="btn btn-secondary">Registrarse</a>
+    </p>
+</div>
+{% endblock %}
+
