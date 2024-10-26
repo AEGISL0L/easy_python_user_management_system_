@@ -1,24 +1,23 @@
 {% extends "base.html" %}
 
-{% block title %}Cambiar Estado del Producto{% endblock %}
+{% block title %}Cambiar Estado{% endblock %}
 
 {% block content %}
-<div class="container">
-    <h1 class="mt-5">Cambiar Estado del Producto</h1>
-    <h3>{{ producto.nombre }}</h3>
-    <p>Estado actual: <strong>{{ producto.estado.nombre }}</strong></p>
-    <form method="POST">
-        {{ form.hidden_tag() }}
-        <div class="form-group">
-            {{ form.estado_nuevo.label(class="form-label") }}
-            {{ form.estado_nuevo(class="form-control") }}
-            {% for error in form.estado_nuevo.errors %}
-                <span class="text-danger">{{ error }}</span>
-            {% endfor %}
-        </div>
-        <button type="submit" class="btn btn-primary">{{ form.submit.label }}</button>
-        <a href="{{ url_for('lista_productos') }}" class="btn btn-secondary">Cancelar</a>
-    </form>
+<div class="row">
+    <div class="col-md-6 offset-md-3">
+        <h2>Cambiar Estado de Producto</h2>
+        <form method="POST">
+            {{ form.hidden_tag() }}
+            <div class="form-group">
+                <p>Producto: {{ producto.nombre }}</p>
+                <p>Estado actual: {{ producto.estado.nombre }}</p>
+            </div>
+            <div class="form-group">
+                {{ form.estado_nuevo.label }}
+                {{ form.estado_nuevo(class="form-control") }}
+            </div>
+            {{ form.submit(class="btn btn-primary mt-3") }}
+        </form>
+    </div>
 </div>
 {% endblock %}
-

@@ -3,30 +3,28 @@
 {% block title %}Lista de Productos{% endblock %}
 
 {% block content %}
-<div class="container">
-    <h1 class="mt-5">Lista de Productos</h1>
-    <table class="table table-striped">
-        <thead>
-            <tr>
-                <th>Nombre</th>
-                <th>Descripción</th>
-                <th>Estado</th>
-                <th>Acciones</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for producto in productos %}
-            <tr>
-                <td>{{ producto.nombre }}</td>
-                <td>{{ producto.descripcion }}</td>
-                <td>{{ producto.estado.nombre }}</td>
-                <td>
-                    <a href="{{ url_for('cambiar_estado_producto', producto_id=producto.id) }}" class="btn btn-primary btn-sm">Cambiar Estado</a>
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-</div>
+<h2>Productos</h2>
+<table class="table">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Nombre</th>
+            <th>Estado</th>
+            <th>Acciones</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for producto in productos %}
+        <tr>
+            <td>{{ producto.id }}</td>
+            <td>{{ producto.nombre }}</td>
+            <td>{{ producto.estado.nombre }}</td>
+            <td>
+                <a href="{{ url_for('cambiar_estado_producto', producto_id=producto.id) }}" 
+                   class="btn btn-primary btn-sm">Cambiar Estado</a>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
 {% endblock %}
-
