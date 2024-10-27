@@ -377,9 +377,32 @@ def dashboard():
 def admin():
     """
     Route handler for the admin dashboard.
+    Shows overview of system stats and quick access to management functions.
     """
-    return "Bienvenido al panel de administrador."
-
+    # Get real data for the dashboard
+    productos = Producto.query.all()
+    usuarios = Usuario.query.all()
+    auditorias = Auditoria.query.order_by(Auditoria.fecha_hora.desc()).limit(5).all()
+    movimientos = Movimiento.query.order_by(Movimiento.fecha_hora.desc()).limit(5).all()
+    
+    # Get latest activities
+    actividades = []
+    for auditoria in auditorias:
+        actividades.append(f"{auditoria.accion} por {auditoria.usuario.nombre_usuario}")
+    
+    # Prepare dashboard stats
+    stats = {
+        'total_productos': len(productos),
+        'total_usuarios': len(usuarios),
+        'total_movimientos': Movimiento.query.count(),
+        'total_auditorias': Auditoria.query.count()
+    }
+    
+    return render_template('admin/dashboard.html', 
+                         actividades=actividades,
+                         stats=stats,
+                         ultimos_movimientos=movimientos)
+                         
 @app.route('/profesor')
 @requiere_roles('Profesor')
 def profesor_dashboard():
@@ -398,3 +421,21 @@ def alumno_dashboard():
 
 if __name__ == '__main__':
     app.run(debug=True, use_reloader=True, use_debugger=True)
+
+@app.route('/admin/usuarios')
+@requiere_roles('Administrador')
+def usuarios():
+    """
+    Route handler for user management.
+    """
+    usuarios = Usuario.query.all()
+    return render_template('admin/usuarios.html', usuarios=usuarios)
+
+@app.route('/admin/auditoria')
+@requiere_roles('Administrador')
+def auditoria():
+    """
+    Route handler for audit logs.
+    """
+    auditorias = Auditoria.query.order_by(Auditoria.fecha_hora.desc()).all()
+    return render_template('admin/auditoria.html', auditorias=auditorias)
