@@ -1,0 +1,23 @@
+
+{% extends "base.html" %}
+
+{% block title %}Notificaciones{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h2>Notificaciones del Sistema</h2>
+    <div class="list-group">
+        {% for notif in notificaciones %}
+        <div class="list-group-item {% if not notif.leida %}list-group-item-info{% endif %}">
+            <div class="d-flex w-100 justify-content-between">
+                <h5 class="mb-1">{{ notif.mensaje }}</h5>
+                <small>{{ notif.fecha_hora.strftime('%Y-%m-%d %H:%M:%S') }}</small>
+            </div>
+            {% if notif.usuario %}
+            <small>Para: {{ notif.usuario.nombre_usuario }}</small>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

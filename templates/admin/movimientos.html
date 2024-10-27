@@ -1,0 +1,32 @@
+
+{% extends "base.html" %}
+
+{% block title %}Movimientos de Productos{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h2>Historial de Movimientos</h2>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Producto</th>
+                <th>Estado Anterior</th>
+                <th>Estado Nuevo</th>
+                <th>Fecha/Hora</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for movimiento in movimientos %}
+            <tr>
+                <td>{{ movimiento.id }}</td>
+                <td>{{ movimiento.producto.nombre }}</td>
+                <td>{{ movimiento.estado_anterior.nombre }}</td>
+                <td>{{ movimiento.estado_nuevo.nombre }}</td>
+                <td>{{ movimiento.fecha_hora.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

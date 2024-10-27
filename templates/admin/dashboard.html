@@ -1,0 +1,70 @@
+
+{% extends "base.html" %}
+
+{% block title %}Panel de Administración{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1 class="mb-4">Panel de Administración</h1>
+    
+    <div class="row">
+        <!-- Productos Card -->
+        <div class="col-md-4 mb-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Gestión de Productos</h5>
+                    <p class="card-text">Administrar inventario RFID</p>
+                    <a href="{{ url_for('lista_productos') }}" class="btn btn-primary">Ver Productos</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Usuarios Card -->
+        <div class="col-md-4 mb-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Usuarios</h5>
+                    <p class="card-text">Gestionar usuarios del sistema</p>
+                    <a href="#" class="btn btn-primary">Gestionar Usuarios</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Auditoría Card -->
+        <div class="col-md-4 mb-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Auditoría</h5>
+                    <p class="card-text">Ver registro de actividades</p>
+                    <a href="#" class="btn btn-primary">Ver Registros</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Stats Row -->
+    <div class="row mt-4">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Estadísticas Recientes</h5>
+                    <canvas id="statsChart"></canvas>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Últimas Actividades</h5>
+                    <ul class="list-group">
+                        {% for actividad in actividades %}
+                            <li class="list-group-item">{{ actividad }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

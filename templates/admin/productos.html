@@ -1,0 +1,36 @@
+
+{% extends "base.html" %}
+
+{% block title %}Gestión de Productos{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h2>Productos RFID</h2>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Nombre</th>
+                <th>Descripción</th>
+                <th>Estado</th>
+                <th>Movimientos</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for producto in productos %}
+            <tr>
+                <td>{{ producto.id }}</td>
+                <td>{{ producto.nombre }}</td>
+                <td>{{ producto.descripcion }}</td>
+                <td>{{ producto.estado.nombre }}</td>
+                <td>{{ producto.movimientos|length }}</td>
+                <td>
+                    <a href="{{ url_for('cambiar_estado_producto', producto_id=producto.id) }}" class="btn btn-sm btn-warning">Cambiar Estado</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
