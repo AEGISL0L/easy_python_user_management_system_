@@ -1,3 +1,15 @@
+<!--
+Renders the admin page for listing all products.
+
+This template extends the base.html template and provides a table view of all
+products in the system. Each product is displayed with its ID, name, and
+current state. The user can click the "Cambiar Estado" button to change the
+state of the product.
+
+The template expects a `productos` variable to be passed in, which should be a
+list of `Producto` objects.
+-->
+
 {% extends "base.html" %}
 
 {% block title %}Lista de Productos{% endblock %}
