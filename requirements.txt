@@ -27,7 +27,7 @@ Flask-SeaSurf==2.0.0
 Flask-Security-Too==5.5.2
 Flask-SQLAlchemy==3.1.1
 flask-talisman==1.1.0
-Flask-WTF==1.2.1
+Flask-WTF==1.2.2
 greenlet==3.1.1
 gunicorn==23.0.0
 html5lib==1.1
