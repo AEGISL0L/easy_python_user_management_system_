@@ -1,4 +1,3 @@
-
 {% extends "base.html" %}
 
 {% block title %}Panel de Administración{% endblock %}
@@ -7,61 +6,99 @@
 <div class="container">
     <h1 class="mb-4">Panel de Administración</h1>
     
+    <!-- Stats Cards Row -->
     <div class="row">
         <!-- Productos Card -->
         <div class="col-md-4 mb-4">
-            <div class="card">
+            <div class="card border-primary">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-box me-2"></i>Productos
+                    </h5>
+                </div>
                 <div class="card-body">
-                    <h5 class="card-title">Gestión de Productos</h5>
-                    <p class="card-text">Administrar inventario RFID</p>
-                    <a href="{{ url_for('lista_productos') }}" class="btn btn-primary">Ver Productos</a>
+                    <h3 class="display-4 text-center">{{ stats.total_productos }}</h3>
+                    <p class="card-text">Total productos en sistema RFID</p>
+                    <div class="d-grid">
+                        <a href="{{ url_for('lista_productos') }}" class="btn btn-outline-primary">
+                            <i class="fas fa-list me-2"></i>Ver Productos
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>
 
         <!-- Usuarios Card -->
         <div class="col-md-4 mb-4">
-            <div class="card">
+            <div class="card border-success">
+                <div class="card-header bg-success text-white">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-users me-2"></i>Usuarios
+                    </h5>
+                </div>
                 <div class="card-body">
-                    <h5 class="card-title">Usuarios</h5>
-                    <p class="card-text">Gestionar usuarios del sistema</p>
-                    <a href="#" class="btn btn-primary">Gestionar Usuarios</a>
+                    <h3 class="display-4 text-center">{{ stats.total_usuarios }}</h3>
+                    <p class="card-text">Usuarios registrados en el sistema</p>
+                    <div class="d-grid">
+                        <a href="{{ url_for('usuarios') }}" class="btn btn-outline-success">
+                            <i class="fas fa-user-cog me-2"></i>Gestionar Usuarios
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <!-- Auditoría Card -->
+        <!-- Movimientos Card -->
         <div class="col-md-4 mb-4">
-            <div class="card">
+            <div class="card border-info">
+                <div class="card-header bg-info text-white">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-exchange-alt me-2"></i>Movimientos
+                    </h5>
+                </div>
                 <div class="card-body">
-                    <h5 class="card-title">Auditoría</h5>
-                    <p class="card-text">Ver registro de actividades</p>
-                    <a href="#" class="btn btn-primary">Ver Registros</a>
+                    <h3 class="display-4 text-center">{{ stats.total_movimientos }}</h3>
+                    <p class="card-text">Total de movimientos registrados</p>
+                    <div class="d-grid">
+                        <a href="{{ url_for('auditoria') }}" class="btn btn-outline-info">
+                            <i class="fas fa-history me-2"></i>Ver Historial
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Stats Row -->
+    <!-- Activity and Stats Row -->
     <div class="row mt-4">
+        <!-- Recent Activities -->
         <div class="col-md-6">
             <div class="card">
-                <div class="card-body">
-                    <h5 class="card-title">Estadísticas Recientes</h5>
-                    <canvas id="statsChart"></canvas>
+                <div class="card-header bg-light">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-clipboard-list me-2"></i>Actividades Recientes
+                    </h5>
                 </div>
-            </div>
-        </div>
-        
-        <div class="col-md-6">
-            <div class="card">
                 <div class="card-body">
-                    <h5 class="card-title">Últimas Actividades</h5>
                     <ul class="list-group">
                         {% for actividad in actividades %}
                             <li class="list-group-item">{{ actividad }}</li>
                         {% endfor %}
                     </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Statistics Chart -->
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header bg-light">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-chart-bar me-2"></i>Estadísticas
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="statsChart"></canvas>
                 </div>
             </div>
         </div>
