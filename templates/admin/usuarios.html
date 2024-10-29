@@ -1,37 +1,54 @@
-
 {% extends "base.html" %}
 
 {% block title %}Gestión de Usuarios{% endblock %}
 
 {% block content %}
 <div class="container">
-    <h2>Usuarios del Sistema</h2>
-    <table class="table">
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>Usuario</th>
-                <th>Rol</th>
-                <th>Auditorías</th>
-                <th>Notificaciones</th>
-                <th>Acciones</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for usuario in usuarios %}
-            <tr>
-                <td>{{ usuario.id }}</td>
-                <td>{{ usuario.nombre_usuario }}</td>
-                <td>{{ usuario.rol }}</td>
-                <td>{{ usuario.auditorias|length }}</td>
-                <td>{{ usuario.notificaciones|length }}</td>
-                <td>
-                    <a href="#" class="btn btn-sm btn-primary">Editar</a>
-                    <a href="#" class="btn btn-sm btn-danger">Eliminar</a>
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2><i class="fas fa-users me-2"></i>Usuarios del Sistema</h2>
+        <button class="btn btn-success">
+            <i class="fas fa-user-plus me-2"></i>Nuevo Usuario
+        </button>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead class="table-light">
+                        <tr>
+                            <th>ID</th>
+                            <th>Usuario</th>
+                            <th>Rol</th>
+                            <th>Auditorías</th>
+                            <th>Notificaciones</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for usuario in usuarios %}
+                        <tr>
+                            <td>{{ usuario.id }}</td>
+                            <td>{{ usuario.nombre_usuario }}</td>
+                            <td><span class="badge bg-info">{{ usuario.rol }}</span></td>
+                            <td><span class="badge bg-secondary">{{ usuario.auditorias|length }}</span></td>
+                            <td><span class="badge bg-warning">{{ usuario.notificaciones|length }}</span></td>
+                            <td>
+                                <div class="btn-group" role="group">
+                                    <button class="btn btn-outline-primary btn-sm">
+                                        <i class="fas fa-edit me-1"></i>Editar
+                                    </button>
+                                    <button class="btn btn-outline-danger btn-sm">
+                                        <i class="fas fa-trash me-1"></i>Eliminar
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
 </div>
 {% endblock %}

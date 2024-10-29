@@ -1,32 +1,57 @@
-
 {% extends "base.html" %}
 
 {% block title %}Movimientos de Productos{% endblock %}
 
 {% block content %}
 <div class="container">
-    <h2>Historial de Movimientos</h2>
-    <table class="table">
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>Producto</th>
-                <th>Estado Anterior</th>
-                <th>Estado Nuevo</th>
-                <th>Fecha/Hora</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for movimiento in movimientos %}
-            <tr>
-                <td>{{ movimiento.id }}</td>
-                <td>{{ movimiento.producto.nombre }}</td>
-                <td>{{ movimiento.estado_anterior.nombre }}</td>
-                <td>{{ movimiento.estado_nuevo.nombre }}</td>
-                <td>{{ movimiento.fecha_hora.strftime('%Y-%m-%d %H:%M:%S') }}</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2><i class="fas fa-exchange-alt me-2"></i>Historial de Movimientos</h2>
+        <div class="btn-group">
+            <button class="btn btn-outline-primary">
+                <i class="fas fa-file-export me-2"></i>Exportar
+            </button>
+            <button class="btn btn-outline-secondary">
+                <i class="fas fa-filter me-2"></i>Filtrar
+            </button>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead class="table-light">
+                        <tr>
+                            <th>ID</th>
+                            <th>Producto</th>
+                            <th>Estado Anterior</th>
+                            <th>Estado Nuevo</th>
+                            <th>Fecha/Hora</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for movimiento in movimientos %}
+                        <tr>
+                            <td>{{ movimiento.id }}</td>
+                            <td>
+                                <span class="badge bg-primary">{{ movimiento.producto.nombre }}</span>
+                            </td>
+                            <td>
+                                <span class="badge bg-secondary">{{ movimiento.estado_anterior.nombre }}</span>
+                            </td>
+                            <td>
+                                <span class="badge bg-success">{{ movimiento.estado_nuevo.nombre }}</span>
+                            </td>
+                            <td>
+                                <i class="fas fa-clock me-1"></i>
+                                {{ movimiento.fecha_hora.strftime('%Y-%m-%d %H:%M:%S') }}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
 </div>
 {% endblock %}

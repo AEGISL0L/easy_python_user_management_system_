@@ -9,21 +9,41 @@ This template extends the base.html template and provides a form for changing th
 {% block title %}Cambiar Estado{% endblock %}
 
 {% block content %}
-<div class="row">
-    <div class="col-md-6 offset-md-3">
-        <h2>Cambiar Estado de Producto</h2>
-        <form method="POST">
-            {{ form.hidden_tag() }}
-            <div class="form-group">
-                <p>Producto: {{ producto.nombre }}</p>
-                <p>Estado actual: {{ producto.estado.nombre }}</p>
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-exchange-alt me-2"></i>Cambiar Estado de Producto
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form method="POST">
+                        {{ form.hidden_tag() }}
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Producto</label>
+                            <input type="text" class="form-control" value="{{ producto.nombre }}" readonly>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Estado Actual</label>
+                            <input type="text" class="form-control" value="{{ producto.estado.nombre }}" readonly>
+                        </div>
+                        
+                        <div class="mb-3">
+                            {{ form.estado_nuevo.label(class="form-label") }}
+                            {{ form.estado_nuevo(class="form-select") }}
+                        </div>
+
+                        <div class="d-grid">
+                            {{ form.submit(class="btn btn-primary") }}
+                        </div>
+                    </form>
+                </div>
             </div>
-            <div class="form-group">
-                {{ form.estado_nuevo.label }}
-                {{ form.estado_nuevo(class="form-control") }}
-            </div>
-            {{ form.submit(class="btn btn-primary mt-3") }}
-        </form>
+        </div>
     </div>
 </div>
 {% endblock %}
