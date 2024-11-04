@@ -1,11 +1,13 @@
 {% extends "base.html" %}
 
 {% block title %}Panel de Administración{% endblock %}
-
 {% block content %}
 <div class="container">
     <h1 class="mb-4">Panel de Administración</h1>
     
+    <a href="{{ url_for('lista_usuarios') }}" class="btn btn-outline-success">
+        <!-- Button content -->
+    </a>
     <!-- Stats Cards Row -->
     <div class="row">
         <!-- Productos Card -->
@@ -26,8 +28,17 @@
                     </div>
                 </div>
             </div>
-        </div>
-
+            </div>
+            {% for producto in productos %}
+                <tr>
+                    <td>{{ producto.nombre }}</td>
+                    <td>{{ producto.codigo }}</td>
+                    <td>{{ producto.estado.nombre }}</td>
+                    <td>
+                        <a href="{{ url_for('historial_producto', producto_id=producto.id) }}" class="btn btn-info btn-sm">Historial</a>
+                    </td>
+                </tr>
+            {% endfor %}
         <!-- Usuarios Card -->
         <div class="col-md-4 mb-4">
             <div class="card border-success">
@@ -40,7 +51,7 @@
                     <h3 class="display-4 text-center">{{ stats.total_usuarios }}</h3>
                     <p class="card-text">Usuarios registrados en el sistema</p>
                     <div class="d-grid">
-                        <a href="{{ url_for('usuarios') }}" class="btn btn-outline-success">
+                        <a href="{{ url_for('lista_usuarios') }}" class="btn btn-outline-success">
                             <i class="fas fa-user-cog me-2"></i>Gestionar Usuarios
                         </a>
                     </div>
@@ -60,7 +71,7 @@
                     <h3 class="display-4 text-center">{{ stats.total_movimientos }}</h3>
                     <p class="card-text">Total de movimientos registrados</p>
                     <div class="d-grid">
-                        <a href="{{ url_for('auditoria') }}" class="btn btn-outline-info">
+                        <a href="{{ url_for('lista_auditoria') }}" class="btn btn-outline-info">
                             <i class="fas fa-history me-2"></i>Ver Historial
                         </a>
                     </div>

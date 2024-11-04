@@ -1,0 +1,35 @@
+ 
+
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-4">
+    <h2>Panel de Alumno</h2>
+    <div class="row">
+        <div class="col-md-12">
+            <h3>Productos Prestados</h3>
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Nombre</th>
+                            <th>Fecha Préstamo</th>
+                            <th>Fecha Devolución</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for producto in productos_prestados %}
+                        <tr>
+                            <td>{{ producto.id }}</td>
+                            <td>{{ producto.nombre }}</td>
+                            <td>{{ producto.fecha_prestamo }}</td>
+                            <td>{{ producto.fecha_devolucion }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

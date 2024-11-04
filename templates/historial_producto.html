@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-4">
+    <h2>Historial del Producto</h2>
+    <div class="card mb-4">
+        <div class="card-body">
+            <h5 class="card-title">{{ producto.nombre }}</h5>
+            <p class="card-text">
+                <strong>ID:</strong> {{ producto.id }}<br>
+                <strong>Estado actual:</strong> {{ producto.estado.nombre }}<br>
+                {% if producto.usuario_asignado %}
+                <strong>Usuario asignado:</strong> {{ producto.usuario.nombre_usuario }}
+                {% endif %}
+            </p>
+        </div>
+    </div>
+
+    <div class="timeline">
+        {% for movimiento in movimientos %}
+        <div class="card mb-3">
+            <div class="card-body">
+                <h6 class="card-subtitle mb-2 text-muted">{{ movimiento.fecha_hora.strftime('%Y-%m-%d %H:%M') }}</h6>
+                <p class="card-text">
+                    Estado: {{ movimiento.estado_anterior }} → {{ movimiento.estado_nuevo }}<br>
+                    Usuario: {{ movimiento.usuario.nombre_usuario }}
+                    {% if movimiento.detalle %}
+                    <br>Detalle: {{ movimiento.detalle }}
+                    {% endif %}
+                </p>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

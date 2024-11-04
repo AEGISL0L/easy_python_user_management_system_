@@ -5,7 +5,6 @@ This template extends the base.html template and provides a form for users to re
 with the application. The form includes fields for the user's username, password, and
 role. When the form is submitted, the data is sent to the server for processing.
 -->
-
 {% extends "base.html" %}
 
 {% block title %}Registro{% endblock %}
@@ -21,23 +20,52 @@ role. When the form is submitted, the data is sent to the server for processing.
                     </h4>
                 </div>
                 <div class="card-body">
+                    {% with messages = get_flashed_messages(with_categories=true) %}
+                        {% if messages %}
+                            {% for category, message in messages %}
+                                <div class="alert alert-{{ category }}">{{ message }}</div>
+                            {% endfor %}
+                        {% endif %}
+                    {% endwith %}
                     <form method="POST">
-                        {{ form.hidden_tag() }}
-                        <div class="mb-3">
-                            {{ form.nombre_usuario.label(class="form-label") }}
-                            {{ form.nombre_usuario(class="form-control", placeholder="Elija un nombre de usuario") }}
+                        {{ form.csrf_token }}
+                        <div class="form-group">
+                            {{ form.nombre_usuario.label }}
+                            {{ form.nombre_usuario(class="form-control") }}
+                            {% if form.nombre_usuario.errors %}
+                                {% for error in form.nombre_usuario.errors %}
+                                    <span class="text-danger">{{ error }}</span>
+                                {% endfor %}
+                            {% endif %}
                         </div>
-                        <div class="mb-3">
-                            {{ form.contraseña.label(class="form-label") }}
-                            {{ form.contraseña(class="form-control", placeholder="Elija una contraseña segura") }}
+                        <div class="form-group">
+                            {{ form.contrasena.label }}
+                            {{ form.contrasena(class="form-control") }}
+                            {% if form.contrasena.errors %}
+                                {% for error in form.contrasena.errors %}
+                                    <span class="text-danger">{{ error }}</span>
+                                {% endfor %}
+                            {% endif %}
                         </div>
-                        <div class="mb-3">
-                            {{ form.rol.label(class="form-label") }}
-                            {{ form.rol(class="form-select") }}
+                        <div class="form-group">
+                            {{ form.confirm_contrasena.label }}
+                            {{ form.confirm_contrasena(class="form-control") }}
+                            {% if form.confirm_contrasena.errors %}
+                                {% for error in form.confirm_contrasena.errors %}
+                                    <span class="text-danger">{{ error }}</span>
+                                {% endfor %}
+                            {% endif %}
                         </div>
-                        <div class="d-grid gap-2">
-                            {{ form.submit(class="btn btn-success") }}
+                        <div class="form-group">
+                            {{ form.rol.label }}
+                            {{ form.rol(class="form-control") }}
+                            {% if form.rol.errors %}
+                                {% for error in form.rol.errors %}
+                                    <span class="text-danger">{{ error }}</span>
+                                {% endfor %}
+                            {% endif %}
                         </div>
+                        {{ form.submit(class="btn btn-primary mt-3") }}
                     </form>
                 </div>
                 <div class="card-footer text-center">

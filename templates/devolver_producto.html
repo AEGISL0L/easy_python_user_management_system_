@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-4">
+    <h2>Devolver Producto</h2>
+    <div class="card">
+        <div class="card-body">
+            <h5 class="card-title">{{ producto.nombre }}</h5>
+            <p class="card-text">
+                <strong>ID:</strong> {{ producto.id }}<br>
+                <strong>Estado actual:</strong> {{ producto.estado.nombre }}<br>
+                <strong>Fecha préstamo:</strong> {{ producto.fecha_asignacion.strftime('%Y-%m-%d') }}
+            </p>
+            <form method="POST">
+                <button type="submit" class="btn btn-primary">Confirmar Devolución</button>
+                <a href="{{ url_for('profesor_dashboard') }}" class="btn btn-secondary">Cancelar</a>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
