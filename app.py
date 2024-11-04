@@ -275,22 +275,30 @@ def usuario_dashboard():
 @app.route('/profesor/dashboard')
 @requiere_roles(RoleEnum.PROFESOR.value)
 def profesor_dashboard():
-    productos_disponibles = Producto.query.filter_by(estado_id=Estado.query.filter_by(nombre='Disponible').first().id).all()
+    estado_disponible = Estado.query.filter_by(nombre='Disponible').first()
+    if estado_disponible:
+        productos_disponibles = Producto.query.filter_by(estado_id=estado_disponible.id).all()
+    else:
+        productos_disponibles = []
     productos_asignados = Producto.query.filter_by(usuario_asignado=current_user.id).all()
     return render_template('profesor/dashboard.html', 
-                         productos_disponibles=productos_disponibles,
-                         productos_asignados=productos_asignados)
+                          productos_disponibles=productos_disponibles,
+                          productos_asignados=productos_asignados)
 
 
 @app.route('/alumno/dashboard')
 @requiere_roles(RoleEnum.ALUMNO.value)
 def alumno_dashboard():
-    productos_prestados = Producto.query.filter_by(
-        usuario_asignado=current_user.id,
-        estado_id=Estado.query.filter_by(nombre='Prestado').first().id
-    ).all()
+    estado_prestado = Estado.query.filter_by(nombre='Prestado').first()
+    if estado_prestado:
+        productos_prestados = Producto.query.filter_by(
+            usuario_asignado=current_user.id,
+            estado_id=estado_prestado.id
+        ).all()
+    else:
+        productos_prestados = []
     return render_template('alumno/dashboard.html', productos_prestados=productos_prestados)
-
+    
 @app.route('/admin/dashboard')
 @requiere_roles(RoleEnum.ADMIN.value, RoleEnum.PROFESOR.value)
 def admin_dashboard():
