@@ -251,10 +251,10 @@
     new Chart(ctxUsuarios, {
         type: 'bar',
         data: {
-            labels: {{ movimientos_por_usuario|map(attribute=0)|list|tojson }},
+            labels: {{ movimientos_por_usuario|map(attribute=0)|list|tojson|default('[]', true) }},
             datasets: [{
                 label: 'Movimientos',
-                data: {{ movimientos_por_usuario|map(attribute=1)|list|tojson }},
+                data: {{ movimientos_por_usuario|map(attribute=1)|list|tojson|default('[]', true) }},
                 backgroundColor: '#17a2b8'
             }]
         },
@@ -272,10 +272,10 @@
     new Chart(ctxTrend, {
         type: 'line',
         data: {
-            labels: {{ movimientos_por_dia|map(attribute=0)|list|tojson }},
+            labels: {{ movimientos_por_dia|map(attribute=0)|list|tojson|default('[]', true) }},
             datasets: [{
                 label: 'Movimientos Diarios',
-                data: {{ movimientos_por_dia|map(attribute=1)|list|tojson }},
+                data: {{ movimientos_por_dia|map(attribute=1)|list|tojson|default('[]', true) }},
                 borderColor: '#007bff',
                 tension: 0.1
             }]
@@ -294,10 +294,10 @@
     new Chart(ctxTiempoPrestamo, {
         type: 'bar',
         data: {
-            labels: {{ productos_frecuentes|map(attribute='nombre')|list|tojson }},
+            labels: {{ productos_frecuentes|map(attribute=0)|map(attribute='nombre')|list|tojson|default('[]', true) }},
             datasets: [{
                 label: 'Días promedio',
-                data: {{ tiempo_prestamo_promedio|tojson }},
+                data: {{ tiempo_prestamo_promedio|tojson|default('[]', true) }},
                 backgroundColor: '#20c997'
             }]
         },
@@ -319,9 +319,9 @@
     new Chart(ctxProductosPopulares, {
         type: 'doughnut',
         data: {
-            labels: {{ productos_populares|map(attribute='nombre')|list|tojson }},
+            labels: {{ productos_populares|map(attribute='nombre')|list|tojson|default('[]', true) }},
             datasets: [{
-                data: {{ productos_populares|map(attribute='total')|list|tojson }},
+                data: {{ productos_populares|map(attribute='total')|list|tojson|default('[]', true) }},
                 backgroundColor: ['#007bff', '#28a745', '#17a2b8', '#ffc107', '#dc3545']
             }]
         }
