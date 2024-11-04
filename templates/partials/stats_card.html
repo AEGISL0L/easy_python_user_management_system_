@@ -1,0 +1,18 @@
+<div class="col-md-4 mb-4">
+    <div class="card border-{{ card_class }}">
+        <div class="card-header bg-{{ card_class }} text-white">
+            <h5 class="card-title mb-0">
+                <i class="{{ icon }} me-2"></i>{{ title }}
+            </h5>
+        </div>
+        <div class="card-body">
+            <h3 class="display-4 text-center">{{ count }}</h3>
+            <p class="card-text">{{ description }}</p>
+            <div class="d-grid">
+                <a href="{{ url }}" class="btn btn-outline-{{ card_class }}">
+                    <i class="{{ button_icon }} me-2"></i>{{ button_text }}
+                </a>
+            </div>
+        </div>
+    </div>
+</div>

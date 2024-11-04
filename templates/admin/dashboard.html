@@ -4,9 +4,6 @@
 {% block content %}
 <div class="container">
     <h1 class="mb-4">Panel de Administración</h1>
-    
-    <a href="{{ url_for('lista_usuarios') }}" class="btn btn-outline-success">
-        <!-- Button content -->
     </a>
     <!-- Stats Cards Row -->
     <div class="row">
@@ -29,16 +26,6 @@
                 </div>
             </div>
             </div>
-            {% for producto in productos %}
-                <tr>
-                    <td>{{ producto.nombre }}</td>
-                    <td>{{ producto.codigo }}</td>
-                    <td>{{ producto.estado.nombre }}</td>
-                    <td>
-                        <a href="{{ url_for('historial_producto', producto_id=producto.id) }}" class="btn btn-info btn-sm">Historial</a>
-                    </td>
-                </tr>
-            {% endfor %}
         <!-- Usuarios Card -->
         <div class="col-md-4 mb-4">
             <div class="card border-success">
