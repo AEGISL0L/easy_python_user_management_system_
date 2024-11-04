@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+
+{% block title %}Agregar Producto{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h2>Agregar Nuevo Producto</h2>
+    <form method="POST">
+        {{ form.hidden_tag() }}
+        <div class="mb-3">
+            {{ form.nombre.label(class="form-label") }}
+            {{ form.nombre(class="form-control") }}
+            {% for error in form.nombre.errors %}
+            <div class="text-danger">{{ error }}</div>
+            {% endfor %}
+        </div>
+        <div class="mb-3">
+            {{ form.descripcion.label(class="form-label") }}
+            {{ form.descripcion(class="form-control") }}
+            {% for error in form.descripcion.errors %}
+            <div class="text-danger">{{ error }}</div>
+            {% endfor %}
+        </div>
+        <div class="mb-3">
+            {{ form.codigo.label(class="form-label") }}
+            {{ form.codigo(class="form-control") }}
+            {% for error in form.codigo.errors %}
+            <div class="text-danger">{{ error }}</div>
+            {% endfor %}
+        </div>
+        <div class="mb-3">
+            {{ form.estado_id.label(class="form-label") }}
+            {{ form.estado_id(class="form-select") }}
+            {% for error in form.estado_id.errors %}
+            <div class="text-danger">{{ error }}</div>
+            {% endfor %}
+        </div>
+        <button type="submit" class="btn btn-primary">{{ form.submit.label }}</button>
+    </form>
+</div>
+{% endblock %}

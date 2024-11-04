@@ -1,5 +1,3 @@
-# decorators.py
-
 from functools import wraps
 from flask import flash, redirect, url_for, current_app
 from flask_login import current_user
@@ -15,7 +13,10 @@ def requiere_roles(*roles):
         @wraps(f)
         def decorated_function(*args, **kwargs):
             # Añadir logging para depuración
-            current_app.logger.debug(f"Usuario: {current_user.nombre_usuario}, Rol: {current_user.rol.value}")
+            if hasattr(current_user, 'nombre_usuario'):
+                current_app.logger.debug(f"Usuario: {current_user.nombre_usuario}, Rol: {current_user.rol.value}")
+            else:
+                current_app.logger.debug("Usuario anónimo intentando acceder")
             if not hasattr(current_user, 'rol') or current_user.rol.value not in roles:
                 flash("No tienes permiso para acceder a esta página.", "danger")
                 current_app.logger.debug("Redirigiendo al usuario debido a falta de permisos.")

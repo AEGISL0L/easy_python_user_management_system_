@@ -96,15 +96,56 @@ class CambiarEstadoForm(FlaskForm):
         if not estados:
             raise ValueError("No hay estados disponibles en el sistema")
         self.estado_nuevo.choices = [(estado.id, estado.nombre) for estado in estados]    
+
 from flask import redirect, url_for, flash
 from flask_login import current_user
 from functools import wraps
+from flask_wtf import FlaskForm
+from wtforms import StringField, TextAreaField, SelectField, SubmitField
+from wtforms.validators import DataRequired, Length
+from models import Estado
+from flask import render_template, redirect, url_for, flash
+#from app import ProductoFormfrom models import Producto, Estado
+from extensions import db
+
+class ProductoForm(FlaskForm):
+    nombre = StringField('Nombre', validators=[DataRequired(), Length(max=150)])
+    descripcion = TextAreaField('Descripción', validators=[Length(max=500)])
+    codigo = StringField('Código', validators=[Length(max=50)])
+    estado_id = SelectField('Estado', coerce=int, validators=[DataRequired()])
+    submit = SubmitField('Agregar Producto')
+
+    def __init__(self, *args, **kwargs):
+        super(ProductoForm, self).__init__(*args, **kwargs)
+        self.estado_id.choices = [(estado.id, estado.nombre) for estado in Estado.query.all()]
 
 @app.route('/admin/productos')
 @requiere_roles(RoleEnum.ADMIN.value)
 def lista_productos():
     productos = Producto.query.all()
     return render_template('admin/lista_productos.html', productos=productos)
+    
+@app.route('/admin/productos/nuevo', methods=['GET', 'POST'])
+@login_required
+@requiere_roles(RoleEnum.ADMIN.value)
+def agregar_producto():
+    form = ProductoForm()
+    if form.validate_on_submit():
+        nuevo_producto = Producto(
+            nombre=form.nombre.data,
+            descripcion=form.descripcion.data,
+            codigo=form.codigo.data,
+            estado_id=form.estado_id.data
+        )
+        try:
+            db.session.add(nuevo_producto)
+            db.session.commit()
+            flash('Producto agregado exitosamente.', 'success')
+        except Exception as e:
+            db.session.rollback()
+            flash(f'Error al agregar producto: {str(e)}', 'danger')
+        return redirect(url_for('lista_productos'))
+    return render_template('admin/agregar_producto.html', form=form)
 
 @app.route('/admin/producto/<int:producto_id>/cambiar_estado', methods=['GET', 'POST'])
 @requiere_roles(RoleEnum.ADMIN.value)
@@ -298,7 +339,7 @@ def alumno_dashboard():
     else:
         productos_prestados = []
     return render_template('alumno/dashboard.html', productos_prestados=productos_prestados)
-    
+
 @app.route('/admin/dashboard')
 @requiere_roles(RoleEnum.ADMIN.value, RoleEnum.PROFESOR.value)
 def admin_dashboard():

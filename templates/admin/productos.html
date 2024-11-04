@@ -1,4 +1,3 @@
-
 {% extends "base.html" %}
 
 {% block title %}Gestión de Productos{% endblock %}
@@ -6,6 +5,9 @@
 {% block content %}
 <div class="container">
     <h2>Productos RFID</h2>
+    <div class="mb-3">
+        <a href="{{ url_for('agregar_producto') }}" class="btn btn-primary">Agregar Producto</a>
+    </div>
     <table class="table">
         <thead>
             <tr>
