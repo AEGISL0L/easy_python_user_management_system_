@@ -9,7 +9,7 @@
                 <strong>ID:</strong> {{ producto.id }}<br>
                 <strong>Estado actual:</strong> {{ producto.estado.nombre }}<br>
                 {% if producto.usuario_asignado %}
-                <strong>Usuario asignado:</strong> {{ producto.usuario.nombre_usuario }}
+                <strong>Usuario asignado:</strong> {{ producto.usuario_asignado.nombre_usuario }}
                 {% endif %}
             </p>
         </div>

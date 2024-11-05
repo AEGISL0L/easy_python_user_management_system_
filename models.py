@@ -62,9 +62,28 @@ class Producto(db.Model):
     fecha_devolucion = db.Column(db.DateTime, nullable=True)
     fecha_alta = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
     ultima_actualizacion = db.Column(db.DateTime, onupdate=datetime.utcnow)
+    rfid_tag = db.Column(db.String(100))
+    ultimo_escaneo = db.Column(db.DateTime)
+    ubicacion_actual = db.Column(db.String(100))
+    
+    __table_args__ = (
+        db.UniqueConstraint('rfid_tag', name='uq_producto_rfid_tag'),
+    )
     
     movimientos = db.relationship('Movimiento', backref='producto', lazy=True, cascade='all, delete-orphan')
-
+    escaneos = db.relationship('EscaneoRFID', back_populates='producto', overlaps="historial_ubicaciones")
+    historial_ubicaciones = db.relationship('EscaneoRFID', back_populates='producto', order_by='EscaneoRFID.fecha_hora.desc()')
+    
+class EscaneoRFID(db.Model):
+    __tablename__ = 'escaneo_rfid'
+    id = db.Column(db.Integer, primary_key=True)
+    producto_id = db.Column(db.Integer, db.ForeignKey('producto.id'), nullable=False)
+    fecha_hora = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+    ubicacion = db.Column(db.String(100))
+    lector_id = db.Column(db.String(100))
+    
+    producto = db.relationship('Producto', back_populates='escaneos', overlaps="historial_ubicaciones")
+    
 class Movimiento(db.Model):
     __tablename__ = 'movimiento'
     id = db.Column(db.Integer, primary_key=True)
