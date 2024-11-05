@@ -82,8 +82,24 @@ def load_user(user_id):
     """Load user by ID for Flask-Login authentication"""
     return Usuario.query.get(int(user_id))
 
+
+
+"""
+    A Flask-WTF form for changing the state of a product.
+    
+    This form allows the user to select a new state for a product from a list of available states.
+    
+    Attributes:
+        estado_nuevo (SelectField): A dropdown field for selecting the new state.
+        submit (SubmitField): A submit button to save the new state.
+    
+    Methods:
+        __init__(self, *args, **kwargs):
+            Initializes the form and populates the `estado_nuevo` choices with all available states.
+            Raises a `ValueError` if there are no states available in the system.
+    """
 class CambiarEstadoForm(FlaskForm):
-    estado_nuevo = SelectField(
+        estado_nuevo = SelectField(
         'Nuevo Estado',
         choices=[],  # Will be filled dynamically
         validators=[DataRequired()]
@@ -108,8 +124,26 @@ from flask import render_template, redirect, url_for, flash
 #from app import ProductoFormfrom models import Producto, Estado
 from extensions import db
 
+
+"""
+        A Flask-WTF form for creating a new product.
+    
+        This form allows the user to input the name, description, code, and state of a new product.
+    
+        Attributes:
+            nombre (StringField): The name of the product.
+            descripcion (TextAreaField): The description of the product.
+            codigo (StringField): The code of the product.
+            estado_id (SelectField): The state of the product, selected from a dropdown.
+            submit (SubmitField): A submit button to save the new product.
+    
+        Methods:
+            __init__(self, *args, **kwargs):
+                Initializes the form and populates the `estado_id` choices with all available states.
+                Raises a `ValueError` if there are no states available in the system.
+        """
 class ProductoForm(FlaskForm):
-    nombre = StringField('Nombre', validators=[DataRequired(), Length(max=150)])
+        nombre = StringField('Nombre', validators=[DataRequired(), Length(max=150)])
     descripcion = TextAreaField('Descripción', validators=[Length(max=500)])
     codigo = StringField('Código', validators=[Length(max=50)])
     estado_id = SelectField('Estado', coerce=int, validators=[DataRequired()])
@@ -119,12 +153,46 @@ class ProductoForm(FlaskForm):
         super(ProductoForm, self).__init__(*args, **kwargs)
         self.estado_id.choices = [(estado.id, estado.nombre) for estado in Estado.query.all()]
 
+
+
+"""
+Renders the admin view for listing all products.
+
+This route is only accessible to users with the 'ADMIN' role. 
+It retrieves all products from the database and renders the 
+'admin/lista_productos.html' template, passing the list of 
+products as the 'productos' parameter.
+
+"""
 @app.route('/admin/productos')
 @requiere_roles(RoleEnum.ADMIN.value)
 def lista_productos():
     productos = Producto.query.all()
     return render_template('admin/lista_productos.html', productos=productos)
+
+
     
+"""
+Renders the admin view for creating a new product.
+
+This route is only accessible to users with the 'ADMIN' role. 
+It displays a form for creating a new product, including fields
+for the product name, description, code, and initial state. 
+When the form is submitted, a new `Producto` instance is created 
+and added to the database.
+
+If the form is valid and the product is successfully added, a success 
+flash message is displayed and the user is redirected to the list of products. 
+If there is an error adding the product, a danger flash message is displayed.
+
+Args:
+    None
+
+Returns:
+    A rendered template for the 'admin/agregar_producto.html' page, 
+    with the `ProductoForm` instance 
+    passed as the `form` parameter.
+"""
 @app.route('/admin/productos/nuevo', methods=['GET', 'POST'])
 @login_required
 @requiere_roles(RoleEnum.ADMIN.value)
@@ -147,6 +215,31 @@ def agregar_producto():
         return redirect(url_for('lista_productos'))
     return render_template('admin/agregar_producto.html', form=form)
 
+
+
+"""
+Renders the admin view for changing the state of a product.
+
+This route is only accessible to users with the 'ADMIN' role. 
+It displays a form for changing the state of a product, allowing the
+admin to select a new state from a dropdown. When the form is submitted,
+the `actualizar_estado_producto` function is called to update the product's
+state, create an audit record, register a movement, and create a notification
+if necessary.
+
+If the state is successfully updated, a success flash message is displayed
+and the user is redirected to the list of products. If there is an error
+updating the state, a danger flash message is displayed.
+
+Args:
+    producto_id (int): The ID of the product to update.
+
+Returns:
+    A rendered template for the 'admin/cambiar_estado.html' page, with the
+    `Producto` instance and `CambiarEstadoForm` instance passed as the
+    `producto` and `form` parameters, respectively.
+"""
+
 @app.route('/admin/producto/<int:producto_id>/cambiar_estado', methods=['GET', 'POST'])
 @requiere_roles(RoleEnum.ADMIN.value)
 def cambiar_estado_producto(producto_id):
@@ -161,6 +254,22 @@ def cambiar_estado_producto(producto_id):
 
     return render_template('admin/cambiar_estado.html', producto=producto, form=form)
 
+
+
+"""
+    Updates the state of a product and performs related actions.
+    
+    This function updates the state of the given product to the new state specified by `estado_nuevo_id`. It also performs the following actions:
+    
+    - Retrieves the previous state of the product.
+    - Registers an audit record for the state change.
+    - Registers a movement record for the state change.
+    - Creates a notification if the new state is one that requires a notification.
+    
+    Args:
+        producto (Producto): The product whose state is to be updated.
+        estado_nuevo_id (int): The ID of the new state for the product.
+    """
 def actualizar_estado_producto(producto, estado_nuevo_id):
     estado_anterior = producto.estado.nombre
     estado_nuevo = Estado.query.get(estado_nuevo_id)
@@ -170,17 +279,43 @@ def actualizar_estado_producto(producto, estado_nuevo_id):
     registrar_auditoria(producto, estado_anterior, estado_nuevo)
     registrar_movimiento(producto, estado_anterior, estado_nuevo)
     crear_notificacion_si_necesario(producto, estado_nuevo)
+    
 
+
+"""
+        Registers an audit record for a change in the state of a product.
+    
+        This function creates an Auditoria record to log the change in state of the
+        given product from the previous state to the new state.
+    
+        Args:
+            producto (Producto): The product whose state has changed.
+            estado_anterior (str): The previous state of the product.
+            estado_nuevo (Estado): The new state of the product.
+
+"""
 def registrar_auditoria(producto, estado_anterior, estado_nuevo):
-    auditoria = Auditoria(
+        auditoria = Auditoria(
         usuario_id=current_user.id,
         accion='Cambio de estado',
         detalle=f'Producto {producto.nombre} de {estado_anterior} a {estado_nuevo.nombre}'
     )
     db.session.add(auditoria)
 
+
+"""
+        Registers a movement record for a change in the state of a product.
+    
+        This function creates a Movimiento record to log the change in state of the
+        given product from the previous state to the new state.
+    
+        Args:
+            producto (Producto): The product whose state has changed.
+            estado_anterior (str): The previous state of the product.
+            estado_nuevo (Estado): The new state of the product.
+"""
 def registrar_movimiento(producto, estado_anterior, estado_nuevo):
-    movimiento = Movimiento(
+        movimiento = Movimiento(
         producto_id=producto.id,
         usuario_id=current_user.id,
         estado_anterior=estado_anterior,
@@ -188,8 +323,19 @@ def registrar_movimiento(producto, estado_anterior, estado_nuevo):
     )
     db.session.add(movimiento)
 
+
+"""
+    Creates a notification if necessary based on the new product state.
+    
+    This function checks if the new product state is one that requires a notification to be
+    created. If so, it creates a new Notificacion record and adds it to the database.
+    
+    Args:
+        producto (Producto): The product whose state has changed.
+        estado_nuevo (Estado): The new state of the product.
+"""
 def crear_notificacion_si_necesario(producto, estado_nuevo):
-    estados_notificables = ['Reparación', 'Uso']
+        estados_notificables = ['Reparación', 'Uso']
     if estado_nuevo and estado_nuevo.nombre in estados_notificables:
         try:
             notificacion = Notificacion(
@@ -202,8 +348,23 @@ def crear_notificacion_si_necesario(producto, estado_nuevo):
             db.session.rollback()
             current_app.logger.error(f'Error al crear notificación: {str(e)}')
 
+
+"""
+    Defines a Flask form for user registration.
+    
+    This form includes fields for the username, password, password confirmation, and user role. The username field is validated to ensure it is unique in the system.
+    
+    Args:
+        nombre_usuario (str): The username entered by the user.
+        contrasena (str): The password entered by the user.
+        confirm_contrasena (str): The password confirmation entered by the user.
+        rol (RoleEnum): The user role selected by the user.
+    
+    Raises:
+        ValidationError: If the username already exists in the database.
+"""
 class FormularioRegistro(FlaskForm):
-    nombre_usuario = StringField('Nombre de Usuario', 
+        nombre_usuario = StringField('Nombre de Usuario', 
         validators=[DataRequired(), Length(min=4, max=150)])
     contrasena = PasswordField('Contraseña', 
         validators=[DataRequired(), Length(min=6)])
@@ -219,8 +380,8 @@ class FormularioRegistro(FlaskForm):
         validators=[DataRequired()])
     submit = SubmitField('Registrarse')
 
-    def validate_nombre_usuario(self, nombre_usuario):
-        """
+
+"""
         Validates that the username is unique in the system.
         
         Args:
@@ -228,7 +389,8 @@ class FormularioRegistro(FlaskForm):
             
         Raises:
             ValidationError: If username already exists in database
-        """
+"""
+    def validate_nombre_usuario(self, nombre_usuario):
         usuario = Usuario.query.filter_by(
             nombre_usuario=nombre_usuario.data
         ).first()
@@ -236,8 +398,26 @@ class FormularioRegistro(FlaskForm):
             raise ValidationError(
                 'El nombre de usuario ya existe. Por favor, elige otro.'
             )
+
+
 class FormularioLogin(FlaskForm):
-    nombre_usuario = StringField(
+"""
+    Defines a Flask form for user login.
+    
+    This form includes fields for the username and password. 
+    The username field is validated to ensure it is not empty 
+    and is between 4 and 150 characters long. 
+    The password field is validated to ensure it is not empty 
+    and is at least 6 characters long.
+    
+    Args:
+        nombre_usuario (str): The username entered by the user.
+        contrasena (str): The password entered by the user.
+    
+    Raises:
+        ValidationError: If the username or password is invalid.
+    """
+        nombre_usuario = StringField(
         'Nombre de Usuario',
         validators=[DataRequired(), Length(min=4, max=150)]
     )
@@ -247,6 +427,20 @@ class FormularioLogin(FlaskForm):
     )
     submit = SubmitField('Iniciar Sesión')
 
+
+
+"""
+Route handler for the application's home page.
+
+If the current user is authenticated, they are redirected to the dashboard page.
+Otherwise, the 'inicio.html' template is rendered.
+"""
+
+"""
+Route handler for user registration.
+
+This route is limited to 5 requests per minute using the Flask-Limiter extension.
+"""
 @app.route('/')
 def inicio():
     if current_user.is_authenticated:
@@ -255,10 +449,23 @@ def inicio():
 
 @app.route('/registro', methods=['GET', 'POST'])
 @limiter.limit("5 per minute")
+
+
 def registro():
-    """
+"""
     Route handler for user registration.
+    
+    This route handles the registration of a new user. It takes a FormularioRegistro form as input, which includes fields for the username and password. If the form is valid, a new Usuario object is created with the provided username and role, and the password is set. The new user is then added to the database and the user is redirected to the login page.
+    
+    Args:
+        form (FormularioRegistro): The registration form submitted by the user.
+    
+    Returns:
+        A rendered template for the registration page, or a redirect to the login page if the registration is successful.
     """
+        """
+    Route handler for user registration.
+"""
     form = FormularioRegistro()
     if form.validate_on_submit():
         nuevo_usuario = Usuario(
@@ -272,6 +479,17 @@ def registro():
         return redirect(url_for('login'))
     return render_template('registro.html', form=form)
 
+"""
+Route handler for user login.
+
+This route handles the login process for a user. It takes a FormularioLogin form as input, which includes fields for the username and password. If the form is valid, the user is queried from the database using the provided username. If the user exists and the provided password matches the stored password, the user is logged in using the login_user() function. The user is then redirected to the dashboard page.
+
+Args:
+    form (FormularioLogin): The login form submitted by the user.
+
+Returns:
+    A rendered template for the login page, or a redirect to the dashboard page if the login is successful.
+"""
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if current_user.is_authenticated:
@@ -286,15 +504,36 @@ def login():
         flash('Nombre de usuario o contraseña incorrectos.', 'danger')
     return render_template('login.html', form=form)
 
+
+"""
+Route handler for user logout.
+
+This route logs out the currently authenticated user by calling the logout_user() function. 
+After the user is logged out, a success message is flashed and the user is redirected to the login page.
+"""
 @app.route('/logout')
 @login_required
 def logout():
-    """
-    Route handler for user logout.
-    """
     logout_user()
     flash('Has cerrado sesión.', 'info')
     return redirect(url_for('login'))
+
+
+"""
+Route handler for the dashboard page.
+
+This route is responsible for redirecting the user to the appropriate dashboard page based on their role.
+If the user is an admin, they are redirected to the admin dashboard. 
+If the user is a professor, they are redirected to the professor dashboard. 
+If the user is a student, they are redirected to the student dashboard. 
+If the user is a regular user, they are redirected to the user dashboard. 
+If the user's role is not recognized, they are redirected to the home page.
+
+This route requires the user to be logged in, as it uses the @login_required decorator.
+
+Returns:
+    A redirect to the appropriate dashboard page based on the user's role.
+"""
 @app.route('/dashboard')
 @login_required
 def dashboard():
@@ -307,12 +546,41 @@ def dashboard():
     elif current_user.rol == RoleEnum.USUARIO:
         return redirect(url_for('usuario_dashboard'))
     return redirect(url_for('inicio'))
+
+"""
+Route handler for the user dashboard page.
+
+This route is responsible for rendering the user dashboard page, which displays the products that have been assigned to the currently authenticated user.
+
+The route is decorated with the `@requiere_roles` decorator, which ensures that only users with the `RoleEnum.USUARIO.value` role can access this route.
+
+The route queries the `Producto` model to retrieve all products that have been assigned to the current user, and passes these products to the `usuario/dashboard.html` template for rendering.
+
+Returns:
+    A rendered template for the user dashboard page, displaying the products assigned to the current user.
+"""
 @app.route('/usuario/dashboard')
 @requiere_roles(RoleEnum.USUARIO.value)
 def usuario_dashboard():
     productos_asignados = Producto.query.filter_by(usuario_asignado=current_user.id).all()
     return render_template('usuario/dashboard.html', productos=productos_asignados)
 
+
+"""
+Route handler for the professor dashboard page.
+
+This route is responsible for rendering the professor dashboard page, which displays the products that are currently available for assignment, as well as the products that have been assigned to the currently authenticated professor.
+
+The route is decorated with the `@requiere_roles` decorator, which ensures that only users with the `RoleEnum.PROFESOR.value` role can access this route.
+
+The route queries the `Producto` model to retrieve all products that are currently available (i.e., have a status of 'Disponible'), as well as all products that have been assigned to the current professor. These products are then passed to the `profesor/dashboard.html` template for rendering.
+
+Args:
+    None
+
+Returns:
+    A rendered template for the professor dashboard page, displaying the available products and the products assigned to the current professor.
+"""
 @app.route('/profesor/dashboard')
 @requiere_roles(RoleEnum.PROFESOR.value)
 def profesor_dashboard():
@@ -327,6 +595,20 @@ def profesor_dashboard():
                           productos_asignados=productos_asignados)
 
 
+
+
+"""
+Route handler for the student dashboard page.
+
+This route is responsible for rendering the student dashboard page, which displays the products that have been assigned to the currently authenticated student.
+
+The route is decorated with the `@requiere_roles` decorator, which ensures that only users with the `RoleEnum.ALUMNO.value` role can access this route.
+
+The route queries the `Producto` model to retrieve all products that have been assigned to the current student and have a status of 'Prestado', and passes these products to the `alumno/dashboard.html` template for rendering.
+
+Returns:
+    A rendered template for the student dashboard page, displaying the products assigned to the current student.
+"""
 @app.route('/alumno/dashboard')
 @requiere_roles(RoleEnum.ALUMNO.value)
 def alumno_dashboard():
@@ -340,6 +622,28 @@ def alumno_dashboard():
         productos_prestados = []
     return render_template('alumno/dashboard.html', productos_prestados=productos_prestados)
 
+
+
+"""
+Route handler for the admin dashboard page.
+
+This route is responsible for rendering the admin dashboard page, which displays 
+various statistics and recent activities related to the application.
+
+The route is decorated with the `@requiere_roles` decorator, which ensures that 
+only users with the `RoleEnum.ADMIN.value` or `RoleEnum.PROFESOR.value` roles can access this route.
+
+The route queries the `Producto`, `Usuario`, `Auditoria`, and `Movimiento` models to 
+retrieve data for the dashboard, including the total number of products, users, movements, 
+and audits, as well as the latest 5 audits and movements. This data is then passed to the 
+`admin/dashboard.html` template for rendering.
+
+Args:
+    None
+
+Returns:
+    A rendered template for the admin dashboard page, displaying the application statistics and recent activities.
+"""
 @app.route('/admin/dashboard')
 @requiere_roles(RoleEnum.ADMIN.value, RoleEnum.PROFESOR.value)
 def admin_dashboard():
@@ -368,12 +672,47 @@ def admin_dashboard():
                           productos=productos)  # Pass productos to the template
 
 
+"""
+Route handler for the admin users page.
+
+This route is responsible for rendering the admin users page, which displays a list of all registered users.
+
+The route is decorated with the `@requiere_roles` decorator, which ensures that only users with the `RoleEnum.ADMIN.value` role can access this route.
+
+The route queries the `Usuario` model to retrieve all registered users, and passes this data to the `admin/usuarios.html` template for rendering.
+
+Args:
+    None
+
+Returns:
+    A rendered template for the admin users page, displaying a list of all registered users.
+"""
 @app.route('/admin/usuarios')
 @requiere_roles(RoleEnum.ADMIN.value)
 def lista_usuarios():
     usuarios = Usuario.query.all()
     return render_template('admin/usuarios.html', usuarios=usuarios)
 
+
+"""
+Route handler for the admin audit log page.
+
+This route is responsible for rendering the admin audit log page, which displays 
+a list of all auditing events recorded in the system.
+
+The route is decorated with the `@requiere_roles` decorator, which ensures that 
+only users with the `RoleEnum.ADMIN.value` role can access this route.
+
+The route queries the `Auditoria` model to retrieve all auditing events, ordered 
+by the `fecha_hora` field in descending order, and passes this data to the 
+`admin/auditoria.html` template for rendering.
+
+Args:
+    None
+
+Returns:
+    A rendered template for the admin audit log page, displaying a list of all auditing events.
+"""
 @app.route('/admin/auditoria')
 @requiere_roles(RoleEnum.ADMIN.value)
 def lista_auditoria():
@@ -383,6 +722,14 @@ def lista_auditoria():
 if __name__ == '__main__':
     app.run(debug=True)
 
+
+
+"""
+    Form for requesting a product.
+    
+    This form allows users to request a product by providing a reason for the request
+    and selecting the desired duration of the loan (1 week, 2 weeks, or 1 month).
+"""
 class SolicitudProductoForm(FlaskForm):
     razon = TextAreaField('Razón de la solicitud', validators=[DataRequired()])
     duracion_dias = SelectField('Duración del préstamo', 
@@ -391,6 +738,31 @@ class SolicitudProductoForm(FlaskForm):
         validators=[DataRequired()])
     submit = SubmitField('Solicitar Producto')
 
+
+"""
+Route handler for the product request page.
+
+This route is responsible for rendering the product request page, which allows users to request a product 
+by providing a reason for the request and selecting the desired duration of the loan (1 week, 2 weeks, or 1 month).
+
+The route is decorated with the `@login_required` decorator, which ensures that only authenticated users can access this route.
+
+The route first retrieves the requested product from the database using the `producto_id` parameter. 
+It then creates an instance of the `SolicitudProductoForm` form and passes it to the template for rendering.
+
+If the form is submitted and validated, the route checks if the product is currently available. 
+If so, it updates the product's status to 'Prestado' (Loaned), sets the user who requested the product, and calculates 
+the due date based on the selected loan duration. It then creates a new `Movimiento` (Movement) record to track the status
+ change and a `Notificacion` (Notification) to inform other users about the request.
+
+Finally, the route commits the changes to the database and redirects the user to the professor dashboard.
+
+Args:
+    producto_id (int): The ID of the product being requested.
+
+Returns:
+    A rendered template for the product request page, displaying the product information and the request form.
+"""
 @app.route('/solicitar-producto/<int:producto_id>', methods=['GET', 'POST'])
 @login_required
 def solicitar_producto(producto_id):
@@ -426,6 +798,22 @@ def solicitar_producto(producto_id):
             
     return render_template('solicitar_producto.html', producto=producto, form=form)
 
+
+
+
+"""
+Handles the process of returning a product by the user who has it assigned.
+
+This route is responsible for updating the product's status to 'Disponible' (Available), removing the assigned user, and setting the return date. It also creates a new `Movimiento` (Movement) record to track the status change and a `Notificacion` (Notification) to inform other users about the return.
+
+Finally, the route commits the changes to the database and redirects the user to the professor dashboard.
+
+Args:
+    producto_id (int): The ID of the product being returned.
+
+Returns:
+    A rendered template for the product return page, displaying the product information.
+"""
 @app.route('/devolver-producto/<int:producto_id>', methods=['GET', 'POST'])
 @login_required
 def devolver_producto(producto_id):
@@ -458,12 +846,27 @@ def devolver_producto(producto_id):
         
     return render_template('devolver_producto.html', producto=producto)
 
+
+"""
+Retrieves the history of movements (Movimiento) for a specific product (Producto) 
+and renders the 'historial_producto.html' template with the product and movement data.
+
+Args:
+    producto_id (int): The ID of the product to retrieve the history for.
+
+Returns:
+    A rendered template for the product history page, displaying the product 
+    information and its movement history.
+"""
 @app.route('/producto/<int:producto_id>/historial')
 @login_required
 def historial_producto(producto_id):
     producto = Producto.query.get_or_404(producto_id)
     movimientos = Movimiento.query.filter_by(producto_id=producto_id).order_by(Movimiento.fecha_hora.desc()).all()
     return render_template('historial_producto.html', producto=producto, movimientos=movimientos)
+
+
+
 from flask import request, render_template
 from flask_login import login_required
 from sqlalchemy import func
@@ -486,6 +889,24 @@ from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, 
 from reportlab.lib.styles import getSampleStyleSheet
 from extensions import db  # Asegúrate de que 'extensions.py' está correctamente configurado
 
+"""
+Renders the 'reportes.html' template with various statistics and 
+analytics related to products and their movements.
+
+This route is accessible only to users with the 'ADMIN' 
+or 'PROFESOR' role, and requires the user to be logged in.
+
+The route retrieves the filter parameters (start date, end date, 
+and state filter) using the `get_filter_parameters()` function, 
+and then obtains the product statistics (available and borrowed products)
+ using the `get_product_statistics()` function.
+
+Additional statistics and analytics are calculated, such as total products, 
+movements per user, movements per day, most frequent products, average loan duration, 
+most popular products, and the latest movements.
+
+All of this data is then passed to the 'reportes.html' template for rendering.
+"""
 @app.route('/reportes', methods=['GET'])
 @login_required
 @requiere_roles(RoleEnum.ADMIN.value, RoleEnum.PROFESOR.value)
@@ -529,8 +950,16 @@ def reportes():
         estado_filter=estado_filter
     )
 
+
+"""
+Retrieve and set default filter parameters.
+    
+Returns:
+    tuple: A tuple containing the start date, end date, and state filter.
+    
+"""
+"""Retrieve and set default filter parameters."""
 def get_filter_parameters():
-    """Retrieve and set default filter parameters."""
     fecha_inicio = request.args.get('fecha_inicio')
     fecha_fin = request.args.get('fecha_fin')
     estado_filter = request.args.get('estado', 'todos')
@@ -541,8 +970,19 @@ def get_filter_parameters():
         fecha_fin = datetime.now().strftime('%Y-%m-%d')
 
     return fecha_inicio, fecha_fin, estado_filter
+
+
+"""
+Obtain product statistics based on the state filter.
+    
+    Args:
+        estado_filter (str): The state filter to apply. If 'todos', retrieve statistics for both available and loaned products.
+    
+    Returns:
+        tuple: A tuple containing the number of available products and the number of loaned products.
+"""    
 def get_product_statistics(estado_filter):
-    """Obtener estadísticas de productos basadas en el filtro de estado."""
+        """Obtener estadísticas de productos basadas en el filtro de estado."""
     if estado_filter == 'todos':
         estado_disponible = Estado.query.filter_by(nombre='Disponible').first()
         estado_prestado = Estado.query.filter_by(nombre='Prestado').first()
@@ -567,23 +1007,54 @@ def get_product_statistics(estado_filter):
 
     return productos_disponibles, productos_prestados
 
+
+"""
+Calculate and return statistics about the available and loaned products.
+    
+    Args:
+        productos_disponibles (int): The number of available products.
+        productos_prestados (int): The number of loaned products.
+    
+    Returns:
+        dict: A dictionary containing the total number of products, the number of available products, and the number of loaned products.
+"""
 def calculate_stats(productos_disponibles, productos_prestados):
-    """Calculate and return statistics."""
+        """Calculate and return statistics."""
     total_productos = Producto.query.count()
     return {
         'total_productos': total_productos,
         'productos_disponibles': productos_disponibles,
         'productos_prestados': productos_prestados
     }
+
+
+"""
+Get movements grouped by user.
+    
+    Returns:
+        list: A list of tuples, where each tuple contains the user's name and the count of movements for that user.
+
+"""
 def get_movimientos_por_usuario():
-    """Get movements grouped by user."""
+        """Get movements grouped by user."""
     return db.session.query(
         Usuario.nombre_usuario,
         func.count(Movimiento.id)
     ).join(Movimiento).group_by(Usuario.id).all()
 
+
+"""
+    Get movements grouped by day.
+    
+    Args:
+        fecha_inicio (datetime): The start date for the date range.
+        fecha_fin (datetime): The end date for the date range.
+    
+    Returns:
+        list: A list of tuples, where each tuple contains the date (in the format 'YYYY-MM-DD') and the count of movements for that day.
+"""
 def get_movimientos_por_dia(fecha_inicio, fecha_fin):
-    """Get movements grouped by day."""
+        """Get movements grouped by day."""
     return db.session.query(
         func.strftime('%Y-%m-%d', Movimiento.fecha_hora),
         func.count(Movimiento.id)
@@ -592,27 +1063,76 @@ def get_movimientos_por_dia(fecha_inicio, fecha_fin):
         Movimiento.fecha_hora <= fecha_fin
     ).group_by(func.strftime('%Y-%m-%d', Movimiento.fecha_hora)).all()
 
+
+"""
+    Get the most frequently moved products.
+    
+    Returns:
+        list: A list of tuples, where each tuple contains a Producto object and 
+        the total count of movements for that product. The list is ordered by the
+         total count in descending order, and limited to the top 5 products.
+"""
+
+
+"""
+    Get the most frequently moved products.
+    
+    Returns:
+        list: A list of tuples, where each tuple contains a Producto object and 
+        the total count of movements for that product. The list is ordered by the
+         total count in descending order, and limited to the top 5 products.
+"""
 def get_productos_frecuentes():
-    """Get the most frequently moved products."""
+        """Get the most frequently moved products."""
     return db.session.query(
         Producto, func.count(Movimiento.id).label('total')
     ).join(Movimiento).group_by(Producto.id).order_by(func.count(Movimiento.id).desc()).limit(5).all()
 
+
+
+"""
+        Calculate the average loan duration for products.
+    
+        Returns:
+            list: A list of tuples, where each tuple contains 
+            the product name and the average number of days the 
+            product was loaned out. The list is ordered by the 
+            average loan duration in descending order.
+"""
 def get_tiempo_prestamo_promedio():
-    """Calculate the average loan duration for products."""
+        """Calculate the average loan duration for products."""
     return db.session.query(
         Producto.nombre,
         func.avg(func.julianday(Movimiento.fecha_hora_devolucion) - func.julianday(Movimiento.fecha_hora_prestamo)).label('dias_promedio')
     ).join(Movimiento).filter(Movimiento.fecha_hora_devolucion != None).group_by(Producto.id).all()
 
+
+"""
+        Get the most popular products based on movements.
+        
+        Returns:
+            list: A list of tuples, where each tuple contains the product name and the 
+            total count of movements for that product. The list is ordered by the total 
+            count in descending order, and limited to the top 5 products.
+"""
 def get_productos_populares():
-    """Get the most popular products based on movements."""
+
+        """Get the most popular products based on movements."""
     return db.session.query(
         Producto.nombre, func.count(Movimiento.id).label('total')
     ).join(Movimiento).group_by(Producto.id).order_by(func.count(Movimiento.id).desc()).limit(5).all()
 
+
+"""
+        Get the most recent movements.
+    
+        Returns:
+            list: A list of the 10 most recent Movimiento objects, ordered by the
+            fecha_hora attribute in descending order.
+"""
 def get_ultimos_movimientos():
-    """Get the most recent movements."""
+
+        """Get the most recent movements."""
     return Movimiento.query.order_by(Movimiento.fecha_hora.desc()).limit(10).all()
 
 from openpyxl import Workbook
@@ -620,6 +1140,17 @@ from datetime import timedelta
 import json
 from io import BytesIO
 
+"""
+Export movements report in various formats.
+
+This function handles the export of the movements report in different formats, such as Excel, JSON, and CSV. It retrieves the movements from the database, orders them by the most recent, and then generates the appropriate output based on the requested format.
+
+Args:
+    formato (str): The requested format for the report, can be 'excel', 'json', or 'csv'.
+
+Returns:
+    Response: A response object containing the generated report in the requested format, with the appropriate content type and headers.
+"""
 @app.route('/reportes/exportar/<formato>')
 @requiere_roles(RoleEnum.ADMIN.value)
 def exportar_reportes(formato):
@@ -689,6 +1220,14 @@ from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, 
 from reportlab.lib.styles import getSampleStyleSheet
 from io import BytesIO
 
+
+"""
+Exports a PDF report of all product movements, including the date, product, user, and previous and new states.
+
+This function requires the ADMIN role to access. It generates a PDF report using the ReportLab library, with a table displaying the movement details.
+
+The report is downloaded as an attachment with the filename "reporte_movimientos.pdf".
+"""
 @app.route('/reportes/exportar/pdf')
 @requiere_roles(RoleEnum.ADMIN.value)
 def exportar_pdf():
@@ -740,8 +1279,21 @@ def exportar_pdf():
         headers={'Content-Disposition': 'attachment; filename=reporte_movimientos.pdf'}
     )
 
+
+
+"""
+    Initializes the required product states in the database.
+    
+    This function checks if the required product states (Disponible, Prestado, Reparación, and Uso) 
+    exist in the database. If any of the required states are missing, it creates them with the 
+    specified name, description, color, and order.
+    
+    The function is typically called during application initialization or setup to ensure the 
+    necessary product states are available in the system.
+    
+"""
 def initialize_estados():
-    required_estados = [
+        required_estados = [
         {'nombre': 'Disponible', 'descripcion': 'Producto disponible para uso', 'color': '#28a745', 'orden': 1},
         {'nombre': 'Prestado', 'descripcion': 'Producto prestado temporalmente', 'color': '#ffc107', 'orden': 2},
         {'nombre': 'Reparación', 'descripcion': 'Producto en mantenimiento o reparación', 'color': '#dc3545', 'orden': 3},
