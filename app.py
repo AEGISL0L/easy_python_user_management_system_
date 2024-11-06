@@ -99,7 +99,7 @@ def load_user(user_id):
             Raises a `ValueError` if there are no states available in the system.
     """
 class CambiarEstadoForm(FlaskForm):
-        estado_nuevo = SelectField(
+    estado_nuevo = SelectField(
         'Nuevo Estado',
         choices=[],  # Will be filled dynamically
         validators=[DataRequired()]
@@ -111,7 +111,7 @@ class CambiarEstadoForm(FlaskForm):
         estados = Estado.query.all()
         if not estados:
             raise ValueError("No hay estados disponibles en el sistema")
-        self.estado_nuevo.choices = [(estado.id, estado.nombre) for estado in estados]    
+        self.estado_nuevo.choices = [(estado.id, estado.nombre) for estado in estados]
 
 from flask import redirect, url_for, flash
 from flask_login import current_user
@@ -143,7 +143,7 @@ from extensions import db
                 Raises a `ValueError` if there are no states available in the system.
         """
 class ProductoForm(FlaskForm):
-        nombre = StringField('Nombre', validators=[DataRequired(), Length(max=150)])
+    nombre = StringField('Nombre', validators=[DataRequired(), Length(max=150)])
     descripcion = TextAreaField('Descripción', validators=[Length(max=500)])
     codigo = StringField('Código', validators=[Length(max=50)])
     estado_id = SelectField('Estado', coerce=int, validators=[DataRequired()])
@@ -295,7 +295,7 @@ def actualizar_estado_producto(producto, estado_nuevo_id):
 
 """
 def registrar_auditoria(producto, estado_anterior, estado_nuevo):
-        auditoria = Auditoria(
+    auditoria = Auditoria(
         usuario_id=current_user.id,
         accion='Cambio de estado',
         detalle=f'Producto {producto.nombre} de {estado_anterior} a {estado_nuevo.nombre}'
@@ -315,7 +315,7 @@ def registrar_auditoria(producto, estado_anterior, estado_nuevo):
             estado_nuevo (Estado): The new state of the product.
 """
 def registrar_movimiento(producto, estado_anterior, estado_nuevo):
-        movimiento = Movimiento(
+    movimiento = Movimiento(
         producto_id=producto.id,
         usuario_id=current_user.id,
         estado_anterior=estado_anterior,
@@ -335,7 +335,7 @@ def registrar_movimiento(producto, estado_anterior, estado_nuevo):
         estado_nuevo (Estado): The new state of the product.
 """
 def crear_notificacion_si_necesario(producto, estado_nuevo):
-        estados_notificables = ['Reparación', 'Uso']
+    estados_notificables = ['Reparación', 'Uso']
     if estado_nuevo and estado_nuevo.nombre in estados_notificables:
         try:
             notificacion = Notificacion(
@@ -364,7 +364,7 @@ def crear_notificacion_si_necesario(producto, estado_nuevo):
         ValidationError: If the username already exists in the database.
 """
 class FormularioRegistro(FlaskForm):
-        nombre_usuario = StringField('Nombre de Usuario', 
+    nombre_usuario = StringField('Nombre de Usuario', 
         validators=[DataRequired(), Length(min=4, max=150)])
     contrasena = PasswordField('Contraseña', 
         validators=[DataRequired(), Length(min=6)])
@@ -390,7 +390,7 @@ class FormularioRegistro(FlaskForm):
         Raises:
             ValidationError: If username already exists in database
 """
-    def validate_nombre_usuario(self, nombre_usuario):
+def validate_nombre_usuario(self, nombre_usuario):
         usuario = Usuario.query.filter_by(
             nombre_usuario=nombre_usuario.data
         ).first()
@@ -400,7 +400,6 @@ class FormularioRegistro(FlaskForm):
             )
 
 
-class FormularioLogin(FlaskForm):
 """
     Defines a Flask form for user login.
     
@@ -416,8 +415,10 @@ class FormularioLogin(FlaskForm):
     
     Raises:
         ValidationError: If the username or password is invalid.
-    """
-        nombre_usuario = StringField(
+"""
+
+class FormularioLogin(FlaskForm):
+    nombre_usuario = StringField(
         'Nombre de Usuario',
         validators=[DataRequired(), Length(min=4, max=150)]
     )
@@ -450,22 +451,8 @@ def inicio():
 @app.route('/registro', methods=['GET', 'POST'])
 @limiter.limit("5 per minute")
 
-
 def registro():
-"""
-    Route handler for user registration.
-    
-    This route handles the registration of a new user. It takes a FormularioRegistro form as input, which includes fields for the username and password. If the form is valid, a new Usuario object is created with the provided username and role, and the password is set. The new user is then added to the database and the user is redirected to the login page.
-    
-    Args:
-        form (FormularioRegistro): The registration form submitted by the user.
-    
-    Returns:
-        A rendered template for the registration page, or a redirect to the login page if the registration is successful.
-    """
-        """
-    Route handler for user registration.
-"""
+
     form = FormularioRegistro()
     if form.validate_on_submit():
         nuevo_usuario = Usuario(
@@ -982,7 +969,6 @@ Obtain product statistics based on the state filter.
         tuple: A tuple containing the number of available products and the number of loaned products.
 """    
 def get_product_statistics(estado_filter):
-        """Obtener estadísticas de productos basadas en el filtro de estado."""
     if estado_filter == 'todos':
         estado_disponible = Estado.query.filter_by(nombre='Disponible').first()
         estado_prestado = Estado.query.filter_by(nombre='Prestado').first()
@@ -1019,7 +1005,6 @@ Calculate and return statistics about the available and loaned products.
         dict: A dictionary containing the total number of products, the number of available products, and the number of loaned products.
 """
 def calculate_stats(productos_disponibles, productos_prestados):
-        """Calculate and return statistics."""
     total_productos = Producto.query.count()
     return {
         'total_productos': total_productos,
@@ -1036,7 +1021,6 @@ Get movements grouped by user.
 
 """
 def get_movimientos_por_usuario():
-        """Get movements grouped by user."""
     return db.session.query(
         Usuario.nombre_usuario,
         func.count(Movimiento.id)
@@ -1054,7 +1038,6 @@ def get_movimientos_por_usuario():
         list: A list of tuples, where each tuple contains the date (in the format 'YYYY-MM-DD') and the count of movements for that day.
 """
 def get_movimientos_por_dia(fecha_inicio, fecha_fin):
-        """Get movements grouped by day."""
     return db.session.query(
         func.strftime('%Y-%m-%d', Movimiento.fecha_hora),
         func.count(Movimiento.id)
@@ -1083,7 +1066,6 @@ def get_movimientos_por_dia(fecha_inicio, fecha_fin):
          total count in descending order, and limited to the top 5 products.
 """
 def get_productos_frecuentes():
-        """Get the most frequently moved products."""
     return db.session.query(
         Producto, func.count(Movimiento.id).label('total')
     ).join(Movimiento).group_by(Producto.id).order_by(func.count(Movimiento.id).desc()).limit(5).all()
@@ -1100,7 +1082,6 @@ def get_productos_frecuentes():
             average loan duration in descending order.
 """
 def get_tiempo_prestamo_promedio():
-        """Calculate the average loan duration for products."""
     return db.session.query(
         Producto.nombre,
         func.avg(func.julianday(Movimiento.fecha_hora_devolucion) - func.julianday(Movimiento.fecha_hora_prestamo)).label('dias_promedio')
@@ -1117,7 +1098,6 @@ def get_tiempo_prestamo_promedio():
 """
 def get_productos_populares():
 
-        """Get the most popular products based on movements."""
     return db.session.query(
         Producto.nombre, func.count(Movimiento.id).label('total')
     ).join(Movimiento).group_by(Producto.id).order_by(func.count(Movimiento.id).desc()).limit(5).all()
@@ -1132,7 +1112,6 @@ def get_productos_populares():
 """
 def get_ultimos_movimientos():
 
-        """Get the most recent movements."""
     return Movimiento.query.order_by(Movimiento.fecha_hora.desc()).limit(10).all()
 
 from openpyxl import Workbook
@@ -1293,7 +1272,7 @@ def exportar_pdf():
     
 """
 def initialize_estados():
-        required_estados = [
+    required_estados = [
         {'nombre': 'Disponible', 'descripcion': 'Producto disponible para uso', 'color': '#28a745', 'orden': 1},
         {'nombre': 'Prestado', 'descripcion': 'Producto prestado temporalmente', 'color': '#ffc107', 'orden': 2},
         {'nombre': 'Reparación', 'descripcion': 'Producto en mantenimiento o reparación', 'color': '#dc3545', 'orden': 3},
